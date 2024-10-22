@@ -1,6 +1,6 @@
-/*
 #include "Trie.h"
 
+std::mutex mtx;
 
 ThreadPool::ThreadPool(size_t numThreads) : stop(false) {
     for (size_t i = 0; i < numThreads; ++i) {
@@ -51,12 +51,6 @@ void ThreadPool::workerThread() {
 
 TrieNode::TrieNode() : totalTweets(0), positiveSentiments(0) {}
 
-TrieNode::~TrieNode() {
-    for (auto& pair : children) {
-        delete pair.second;
-    }
-}
-
 Trie::Trie() {
     root = new TrieNode();
 }
@@ -94,6 +88,7 @@ Trie::~Trie() {
 }
 
 void Trie::deleteTrie(TrieNode* node) {
+    if (node == nullptr) return;
     for (auto& pair : node->children) {
         deleteTrie(pair.second);
     }
@@ -106,8 +101,9 @@ void Trie::save(const std::string& filename) const {
         throw std::runtime_error("Could not open file for writing");
     }
     std::vector<std::pair<std::string, TrieNode*>> batch;
-    ThreadPool pool(std::thread::hardware_concurrency());
-    saveNode(file, root, "", batch, pool);
+    ThreadPool* pool = new ThreadPool(std::thread::hardware_concurrency());
+    saveNode(file, root, "", batch, *pool);
+    delete pool;
     if (!batch.empty()) {
         writeBatch(file, batch);
     }
@@ -180,4 +176,3 @@ void Trie::load(const std::string& filename) {
 
     file.close();
 }
-*/
