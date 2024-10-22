@@ -2,13 +2,13 @@
 
 **Complete this document, commit your changes to Github and submit the repository URL to Canvas.** Keep your answers short and precise.
 
-Your Name:
+Your Name: Craig Truitt
 
 Used free extension: [ ] 24 hrs or [ ] 48 hrs
 
 [ ] Early submission (48 hrs)
 
-[ ] Bonus work. Describe: ...
+[ ] Bonus work. Describe: 72% accuracy
 
 Place [x] for what applies.
 
