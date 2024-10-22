@@ -145,14 +145,13 @@ void Trie::load(const std::string& filename) {
         throw std::runtime_error("Could not open file for reading");
     }
 
-    while (true) {
+    while (file) {
         size_t prefixSize;
         if (!file.read(reinterpret_cast<char*>(&prefixSize), sizeof(prefixSize))) {
             break; // Exit loop if reading fails (end of file or error)
         }
 
-        std::string prefix;
-        prefix.resize(prefixSize);
+        std::string prefix(prefixSize, '\0');
         if (!file.read(&prefix[0], prefixSize)) {
             throw std::runtime_error("Error reading prefix from file");
         }
@@ -173,6 +172,4 @@ void Trie::load(const std::string& filename) {
         current->totalTweets = totalTweets;
         current->positiveSentiments = positiveSentiments;
     }
-
-    file.close();
 }
