@@ -117,6 +117,22 @@ double Trie::getSentimentScore(const std::string& word) const {
     return static_cast<double>(current->positiveSentiments - (current->totalTweets - current->positiveSentiments)) / current->totalTweets;
 }
 
+double Trie::getLogOddsRatio(const std::string& word) const {
+    TrieNode* current = root;
+    for (char c : word) {
+        if (current->children.find(c) == current->children.end()) {
+            return 0.0; // Word not found
+        }
+        current = current->children[c];
+    }
+    if (current->totalTweets == 0) {
+        return 0.0;
+    }
+    double positiveRatio = static_cast<double>(current->positiveSentiments + 1) / (current->totalTweets + 2); // Laplace smoothing
+    double negativeRatio = static_cast<double>(current->totalTweets - current->positiveSentiments + 1) / (current->totalTweets + 2); // Laplace smoothing
+    return std::log(positiveRatio / negativeRatio);
+}
+
 Trie::~Trie() {
     deleteTrie(root);
 }

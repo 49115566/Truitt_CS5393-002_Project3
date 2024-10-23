@@ -12,6 +12,7 @@
 #include <condition_variable>
 #include <functional>
 #include <iostream>
+#include <cmath>
 
 class ThreadPool {
 public:
@@ -47,6 +48,7 @@ public:
     void train(const std::string& file);
     void insert(const std::string& word, bool isPositive);
     double getSentimentScore(const std::string& word) const;
+    double getLogOddsRatio(const std::string& word) const;
     ~Trie();
     
     void save(const std::string& filename) const;

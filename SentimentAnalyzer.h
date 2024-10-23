@@ -4,6 +4,10 @@
 #include "Trie.h"
 #include <string>
 #include <vector>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
+#include <fstream>
 
 class SentimentAnalyzer {
 public:

@@ -1,8 +1,4 @@
 #include "SentimentAnalyzer.h"
-#include <sstream>
-#include <algorithm>
-#include <cctype>
-#include <fstream>
 
 SentimentAnalyzer::SentimentAnalyzer(const std::string& saveFile, const std::string& trainFile) {
     std::ifstream file(saveFile);
@@ -20,11 +16,11 @@ SentimentAnalyzer::SentimentAnalyzer(const std::string& saveFile, const std::str
 
 double SentimentAnalyzer::analyzeSentiment(const std::string& text) const {
     std::vector<std::string> words = tokenize(text);
-    double totalScore = 0.0;
+    double logOddsSum = 0.0;
     for (const std::string& word : words) {
-        totalScore += trie.getSentimentScore(word);
+        logOddsSum += trie.getLogOddsRatio(word);
     }
-    return totalScore / words.size();
+    return logOddsSum;
 }
 
 void SentimentAnalyzer::analyzeFile(const std::string& input, const std::string& output) const {
