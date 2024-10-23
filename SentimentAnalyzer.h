@@ -7,7 +7,7 @@
 
 class SentimentAnalyzer {
 public:
-    SentimentAnalyzer(const std::string& trieFile);
+    SentimentAnalyzer(const std::string& saveFile, const std::string& trainFile);
     double analyzeSentiment(const std::string& text) const;
 
 private:

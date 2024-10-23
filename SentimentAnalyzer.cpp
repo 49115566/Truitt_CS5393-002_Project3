@@ -2,9 +2,18 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <fstream>
 
-SentimentAnalyzer::SentimentAnalyzer(const std::string& trieFile) {
-    trie.load(trieFile);
+SentimentAnalyzer::SentimentAnalyzer(const std::string& saveFile, const std::string& trainFile) {
+    std::ifstream file(saveFile);
+    if (file.good() && file.peek() != std::ifstream::traits_type::eof()) {
+        std::cout << "Loading trie from file..." << std::endl;
+        trie.load(saveFile);
+    } else {
+        std::cout << "Training the trie..." << std::endl;
+        trie.train(trainFile);
+        trie.save(saveFile);
+    }
 }
 
 double SentimentAnalyzer::analyzeSentiment(const std::string& text) const {

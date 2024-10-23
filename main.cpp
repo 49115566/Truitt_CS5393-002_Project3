@@ -5,14 +5,7 @@
 
 int main() {
     try {
-        /*
-        Trie trie;
-        trie.train("data/train_dataset_20k.csv");
-
-        trie.save("trie.dat");
-        */
-
-        SentimentAnalyzer analyzer("trie.dat");
+        SentimentAnalyzer analyzer("trie.dat", "data/train_dataset_20k.csv");
 
         std::string text = "Sitting in the office forced to look at the sunshine from my window  At least I have a window to stare through. Only 2 wks to my run :-&amp;";
 
