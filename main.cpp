@@ -5,28 +5,24 @@
 
 int main() {
     try {
-        std::cout << "Testing the Sentiment Analyzer!" << std::endl;
-        SentimentAnalyzer SA("trie.dat");
-        
-        std::string text = "Jeremy is not a DS!";
-        double score = SA.analyzeSentiment(text);
+        /*
+        Trie trie;
+        trie.train("data/train_dataset_20k.csv");
 
-        std::cout << "Sentiment score for \"" << text << "\": " << score << std::endl;
+        trie.save("trie.dat");
+        */
 
-        text = "Jeremy is a DS!";
-        score = SA.analyzeSentiment(text);
+        SentimentAnalyzer analyzer("trie.dat");
 
-        std::cout << "Sentiment score for \"" << text << "\": " << score << std::endl;
+        std::string text = "Sitting in the office forced to look at the sunshine from my window  At least I have a window to stare through. Only 2 wks to my run :-&amp;";
 
-        text = "Jeremy is a DS! Jeremy is not a DS!";
-        score = SA.analyzeSentiment(text);
+        double sentiment = analyzer.analyzeSentiment(text);
+        std::cout << "Sentiment score: " << sentiment << std::endl;
 
-        std::cout << "Sentiment score for \"" << text << "\": " << score << std::endl;
+        text = "Doing absolutely nothing alll weekend. How fun.";
 
-        text = "Jeremy is a DS! Jeremy: is not a DS! Jeremy has a DS!";
-        score = SA.analyzeSentiment(text);
-
-        std::cout << "Sentiment score for \"" << text << "\": " << score << std::endl;
+        sentiment = analyzer.analyzeSentiment(text);
+        std::cout << "Sentiment score: " << sentiment << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
         return -1;

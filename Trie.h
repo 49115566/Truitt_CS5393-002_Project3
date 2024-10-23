@@ -44,6 +44,7 @@ private:
 
 public:
     Trie();
+    void train(const std::string& file);
     void insert(const std::string& word, bool isPositive);
     double getSentimentScore(const std::string& word) const;
     ~Trie();

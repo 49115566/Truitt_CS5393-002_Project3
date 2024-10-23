@@ -55,6 +55,40 @@ Trie::Trie() {
     root = new TrieNode();
 }
 
+void Trie::train(const std::string& file) {
+    std::ifstream infile(file);
+    if (!infile.is_open()) {
+        throw std::runtime_error("Could not open file for reading");
+    }
+
+    std::cout << "Training the trie..." << std::endl;
+    std::string line;
+    while (std::getline(infile, line)) {
+        std::istringstream ss(line);
+        std::string sentimentStr, id, date, query, user, tweet;
+
+        if (!std::getline(ss, sentimentStr, ',')) continue;
+        if (!std::getline(ss, id, ',')) continue;
+        if (!std::getline(ss, date, ',')) continue;
+        if (!std::getline(ss, query, ',')) continue;
+        if (!std::getline(ss, user, ',')) continue;
+        if (!std::getline(ss, tweet)) continue;
+
+        bool isPositive = (sentimentStr == "4");
+
+        std::istringstream tweetStream(tweet);
+        std::string word;
+        while (tweetStream >> word) {
+            word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
+            std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+            insert(word, isPositive);
+        }
+    }
+
+    infile.close();
+    std::cout << std::endl << "Training complete!" << std::endl;
+}
+
 void Trie::insert(const std::string& word, bool isPositive) {
     TrieNode* current = root;
     for (char c : word) {
@@ -100,6 +134,7 @@ void Trie::save(const std::string& filename) const {
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file for writing");
     }
+    std::cout << "Saving the trie..." << std::endl;
     std::vector<std::pair<std::string, TrieNode*>> batch;
     ThreadPool* pool = new ThreadPool(std::thread::hardware_concurrency());
     saveNode(file, root, "", batch, *pool);
@@ -108,15 +143,24 @@ void Trie::save(const std::string& filename) const {
         writeBatch(file, batch);
     }
     file.close();
+    std::cout << "Trie saved!" << std::endl;
 }
 
 void Trie::saveNode(std::ofstream& file, TrieNode* node, const std::string& prefix, std::vector<std::pair<std::string, TrieNode*>>& batch, ThreadPool& pool) const {
     if (node->totalTweets > 0) {
-        std::lock_guard<std::mutex> lock(mtx);
-        batch.emplace_back(prefix, node);
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            batch.emplace_back(prefix, node);
+        }
         if (batch.size() >= 1000) { // Batch size of 1000
-            writeBatch(file, batch);
-            batch.clear();
+            std::vector<std::pair<std::string, TrieNode*>> batchCopy;
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                batchCopy.swap(batch);
+            }
+            pool.enqueue([this, &file, batchCopy] {
+                writeBatch(file, batchCopy);
+            });
         }
     }
     for (const auto& pair : node->children) {
