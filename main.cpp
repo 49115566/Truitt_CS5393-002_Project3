@@ -7,15 +7,10 @@ int main() {
     try {
         SentimentAnalyzer analyzer("trie.dat", "data/train_dataset_20k.csv");
 
-        std::string text = "Sitting in the office forced to look at the sunshine from my window  At least I have a window to stare through. Only 2 wks to my run :-&amp;";
+        analyzer.analyzeFile("data/test_dataset_10k.csv", "output.csv");
 
-        double sentiment = analyzer.analyzeSentiment(text);
-        std::cout << "Sentiment score: " << sentiment << std::endl;
-
-        text = "Doing absolutely nothing alll weekend. How fun.";
-
-        sentiment = analyzer.analyzeSentiment(text);
-        std::cout << "Sentiment score: " << sentiment << std::endl;
+        double acc = analyzer.accuracy("output.csv", "data/test_dataset_sentiment_10k.csv");
+        std::cout << "Accuracy: " << acc << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
         return -1;

@@ -9,6 +9,8 @@ class SentimentAnalyzer {
 public:
     SentimentAnalyzer(const std::string& saveFile, const std::string& trainFile);
     double analyzeSentiment(const std::string& text) const;
+    void analyzeFile(const std::string& input, const std::string& output) const;
+    double accuracy(const std::string& analyzedFile, const std::string& answersFile) const;
 
 private:
     Trie trie;

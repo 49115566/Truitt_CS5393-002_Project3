@@ -36,7 +36,7 @@ Replace the following image with your diagram. You can draw it by hand and take 
 
 4. What accuracy did your algorithm achieve on the provides training and test data? 
 
-   > My accuracy: xx%
+   > My accuracy: 69.44%
 
    The TA will run your code on Linux and that accuracy value will be used to determine your grade.
 
