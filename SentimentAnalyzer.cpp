@@ -1,7 +1,7 @@
 #include "SentimentAnalyzer.h"
 
-SentimentAnalyzer::SentimentAnalyzer(const std::string& saveFile, const std::string& trainFile) {
-    std::ifstream file(saveFile);
+SentimentAnalyzer::SentimentAnalyzer(const DSString& saveFile, const DSString& trainFile) {
+    std::ifstream file(saveFile.c_str());
     if (file.good() && file.peek() != std::ifstream::traits_type::eof()) {
         std::cout << "Loading trie from file..." << std::endl;
         trie.load(saveFile);
@@ -14,18 +14,18 @@ SentimentAnalyzer::SentimentAnalyzer(const std::string& saveFile, const std::str
     }
 }
 
-double SentimentAnalyzer::analyzeSentiment(const std::string& text) const {
-    std::vector<std::string> words = tokenize(text);
+double SentimentAnalyzer::analyzeSentiment(const DSString& text) const {
+    std::vector<DSString> words = tokenize(text);
     double logOddsSum = 0.0;
-    for (const std::string& word : words) {
+    for (const DSString& word : words) {
         logOddsSum += trie.getLogOddsRatio(word);
     }
     return logOddsSum;
 }
 
-void SentimentAnalyzer::analyzeFile(const std::string& input, const std::string& output) const {
-    std::ifstream inputFile(input);
-    std::ofstream outputFile(output);
+void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& output) const {
+    std::ifstream inputFile(input.c_str());
+    std::ofstream outputFile(output.c_str());
 
     if (!inputFile.is_open()) {
         throw std::runtime_error("Could not open input file");
@@ -36,21 +36,21 @@ void SentimentAnalyzer::analyzeFile(const std::string& input, const std::string&
     }
 
     std::cout << "Analyzing file..." << std::endl;
-    std::string line;
+    DSString line;
     // Skip the header line
-    std::getline(inputFile, line);
+    getline(inputFile, line);
     outputFile << "Sentiment,id" << std::endl;
 
-    while (std::getline(inputFile, line)) {
-        std::istringstream stream(line);
-        std::string id, date, query, user, tweet;
+    while (getline(inputFile, line)) {
+        std::istringstream stream(line.c_str());
+        DSString id, date, query, user, tweet;
 
         // Read the CSV fields
-        std::getline(stream, id, ',');
-        std::getline(stream, date, ',');
-        std::getline(stream, query, ',');
-        std::getline(stream, user, ',');
-        std::getline(stream, tweet, ',');
+        getline(stream, id, ',');
+        getline(stream, date, ',');
+        getline(stream, query, ',');
+        getline(stream, user, ',');
+        getline(stream, tweet, ',');
 
         double sentimentScore = analyzeSentiment(tweet);
         int sentiment = sentimentScore > 0 ? 4 : 0;
@@ -64,9 +64,9 @@ void SentimentAnalyzer::analyzeFile(const std::string& input, const std::string&
     std::cout << "Analysis complete!" << std::endl;
 }
 
-double SentimentAnalyzer::accuracy(const std::string& analyzedFile, const std::string& answersFile) const {
-    std::ifstream analyzed(analyzedFile);
-    std::ifstream answers(answersFile);
+double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString& answersFile) const {
+    std::ifstream analyzed(analyzedFile.c_str());
+    std::ifstream answers(answersFile.c_str());
 
     if (!analyzed.is_open()) {
         throw std::runtime_error("Could not open analyzed file");
@@ -76,29 +76,29 @@ double SentimentAnalyzer::accuracy(const std::string& analyzedFile, const std::s
         throw std::runtime_error("Could not open answers file");
     }
 
-    std::string analyzedLine, answersLine;
+    DSString analyzedLine, answersLine;
     int matchingLines = 0;
     int totalLines = 0;
 
     // Skip the header lines
-    std::getline(analyzed, analyzedLine);
-    std::getline(answers, answersLine);
+    getline(analyzed, analyzedLine);
+    getline(answers, answersLine);
 
-    while (std::getline(analyzed, analyzedLine) && std::getline(answers, answersLine)) {
-        std::istringstream analyzedStream(analyzedLine);
-        std::istringstream answersStream(answersLine);
+    while (getline(analyzed, analyzedLine) && getline(answers, answersLine)) {
+        std::istringstream analyzedStream(analyzedLine.c_str());
+        std::istringstream answersStream(answersLine.c_str());
 
         int analyzedSentiment, answersSentiment;
-        std::string analyzedId, answersId;
+        DSString analyzedId, answersId;
 
         // Read the CSV fields
         analyzedStream >> analyzedSentiment;
         analyzedStream.ignore(1, ',');
-        std::getline(analyzedStream, analyzedId);
+        getline(analyzedStream, analyzedId);
 
         answersStream >> answersSentiment;
         answersStream.ignore(1, ',');
-        std::getline(answersStream, answersId);
+        getline(answersStream, answersId);
 
         if (analyzedId != answersId) {
             std::cerr << "ID mismatch at line " << totalLines + 1 << std::endl;
@@ -122,10 +122,10 @@ double SentimentAnalyzer::accuracy(const std::string& analyzedFile, const std::s
     return (static_cast<double>(matchingLines) / totalLines) * 100.0;
 }
 
-std::vector<std::string> SentimentAnalyzer::tokenize(const std::string& text) const {
-    std::vector<std::string> tokens;
-    std::istringstream stream(text);
-    std::string word;
+std::vector<DSString> SentimentAnalyzer::tokenize(const DSString& text) const {
+    std::vector<DSString> tokens;
+    std::istringstream stream(text.c_str());
+    DSString word;
     while (stream >> word) {
         // Remove punctuation and convert to lowercase
         word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());

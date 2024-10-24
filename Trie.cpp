@@ -1,4 +1,5 @@
 #include "Trie.h"
+#include "DSString.h"
 
 std::mutex mtx;
 
@@ -55,29 +56,29 @@ Trie::Trie() {
     root = new TrieNode();
 }
 
-void Trie::train(const std::string& file) {
-    std::ifstream infile(file);
+void Trie::train(const DSString& file) {
+    std::ifstream infile(file.c_str());
     if (!infile.is_open()) {
         throw std::runtime_error("Could not open file for reading");
     }
 
     std::cout << "Training the trie..." << std::endl;
-    std::string line;
-    while (std::getline(infile, line)) {
-        std::istringstream ss(line);
-        std::string sentimentStr, id, date, query, user, tweet;
+    DSString line;
+    while (getline(infile, line)) {
+        std::istringstream ss(line.c_str());
+        DSString sentimentStr, id, date, query, user, tweet;
 
-        if (!std::getline(ss, sentimentStr, ',')) continue;
-        if (!std::getline(ss, id, ',')) continue;
-        if (!std::getline(ss, date, ',')) continue;
-        if (!std::getline(ss, query, ',')) continue;
-        if (!std::getline(ss, user, ',')) continue;
-        if (!std::getline(ss, tweet)) continue;
+        if (!getline(ss, sentimentStr, ',')) continue;
+        if (!getline(ss, id, ',')) continue;
+        if (!getline(ss, date, ',')) continue;
+        if (!getline(ss, query, ',')) continue;
+        if (!getline(ss, user, ',')) continue;
+        if (!getline(ss, tweet)) continue;
 
         bool isPositive = (sentimentStr == "4");
 
-        std::istringstream tweetStream(tweet);
-        std::string word;
+        std::istringstream tweetStream(tweet.c_str());
+        DSString word;
         while (tweetStream >> word) {
             word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
             std::transform(word.begin(), word.end(), word.begin(), ::tolower);
@@ -89,7 +90,7 @@ void Trie::train(const std::string& file) {
     std::cout << std::endl << "Training complete!" << std::endl;
 }
 
-void Trie::insert(const std::string& word, bool isPositive) {
+void Trie::insert(const DSString& word, bool isPositive) {
     TrieNode* current = root;
     for (char c : word) {
         if (current->children.find(c) == current->children.end()) {
@@ -103,7 +104,7 @@ void Trie::insert(const std::string& word, bool isPositive) {
     }
 }
 
-double Trie::getSentimentScore(const std::string& word) const {
+double Trie::getSentimentScore(const DSString& word) const {
     TrieNode* current = root;
     for (char c : word) {
         if (current->children.find(c) == current->children.end()) {
@@ -117,7 +118,7 @@ double Trie::getSentimentScore(const std::string& word) const {
     return static_cast<double>(current->positiveSentiments - (current->totalTweets - current->positiveSentiments)) / current->totalTweets;
 }
 
-double Trie::getLogOddsRatio(const std::string& word) const {
+double Trie::getLogOddsRatio(const DSString& word) const {
     TrieNode* current = root;
     for (char c : word) {
         if (current->children.find(c) == current->children.end()) {
@@ -145,13 +146,13 @@ void Trie::deleteTrie(TrieNode* node) {
     delete node;
 }
 
-void Trie::save(const std::string& filename) const {
-    std::ofstream file(filename, std::ios::binary);
+void Trie::save(const DSString& filename) const {
+    std::ofstream file(filename.c_str(), std::ios::binary);
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file for writing");
     }
     std::cout << "Saving the trie..." << std::endl;
-    std::vector<std::pair<std::string, TrieNode*>> batch;
+    std::vector<std::pair<DSString, TrieNode*>> batch;
     ThreadPool* pool = new ThreadPool(std::thread::hardware_concurrency());
     saveNode(file, root, "", batch, *pool);
     delete pool;
@@ -162,14 +163,14 @@ void Trie::save(const std::string& filename) const {
     std::cout << "Trie saved!" << std::endl;
 }
 
-void Trie::saveNode(std::ofstream& file, TrieNode* node, const std::string& prefix, std::vector<std::pair<std::string, TrieNode*>>& batch, ThreadPool& pool) const {
+void Trie::saveNode(std::ofstream& file, TrieNode* node, const DSString& prefix, std::vector<std::pair<DSString, TrieNode*>>& batch, ThreadPool& pool) const {
     if (node->totalTweets > 0) {
         {
             std::lock_guard<std::mutex> lock(mtx);
             batch.emplace_back(prefix, node);
         }
         if (batch.size() >= 1000) { // Batch size of 1000
-            std::vector<std::pair<std::string, TrieNode*>> batchCopy;
+            std::vector<std::pair<DSString, TrieNode*>> batchCopy;
             {
                 std::lock_guard<std::mutex> lock(mtx);
                 batchCopy.swap(batch);
@@ -186,12 +187,12 @@ void Trie::saveNode(std::ofstream& file, TrieNode* node, const std::string& pref
     }
 }
 
-void Trie::writeBatch(std::ofstream& file, const std::vector<std::pair<std::string, TrieNode*>>& batch) const {
+void Trie::writeBatch(std::ofstream& file, const std::vector<std::pair<DSString, TrieNode*>>& batch) const {
     std::lock_guard<std::mutex> lock(mtx);
     for (const auto& pair : batch) {
-        const std::string& prefix = pair.first;
+        const DSString& prefix = pair.first;
         TrieNode* node = pair.second;
-        size_t prefixSize = prefix.size();
+        size_t prefixSize = prefix.length();
         file.write(reinterpret_cast<const char*>(&prefixSize), sizeof(prefixSize));
         file.write(prefix.c_str(), prefixSize);
         file.write(reinterpret_cast<const char*>(&node->totalTweets), sizeof(node->totalTweets));
@@ -199,8 +200,8 @@ void Trie::writeBatch(std::ofstream& file, const std::vector<std::pair<std::stri
     }
 }
 
-void Trie::load(const std::string& filename) {
-    std::ifstream file(filename, std::ios::binary);
+void Trie::load(const DSString& filename) {
+    std::ifstream file(filename.c_str(), std::ios::binary);
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file for reading");
     }
@@ -211,7 +212,7 @@ void Trie::load(const std::string& filename) {
             break; // Exit loop if reading fails (end of file or error)
         }
 
-        std::string prefix(prefixSize, '\0');
+        DSString prefix(prefixSize, '\0');
         if (!file.read(&prefix[0], prefixSize)) {
             throw std::runtime_error("Error reading prefix from file");
         }

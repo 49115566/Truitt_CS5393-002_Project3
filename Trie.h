@@ -1,8 +1,8 @@
 #ifndef TRIE_H
 #define TRIE_H
 
+#include "DSString.h" // Include DSString header
 #include <unordered_map>
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <thread>
@@ -45,17 +45,17 @@ private:
 
 public:
     Trie();
-    void train(const std::string& file);
-    void insert(const std::string& word, bool isPositive);
-    double getSentimentScore(const std::string& word) const;
-    double getLogOddsRatio(const std::string& word) const;
+    void train(const DSString& file);
+    void insert(const DSString& word, bool isPositive);
+    double getSentimentScore(const DSString& word) const;
+    double getLogOddsRatio(const DSString& word) const;
     ~Trie();
     
-    void save(const std::string& filename) const;
-    void load(const std::string& filename);
+    void save(const DSString& filename) const;
+    void load(const DSString& filename);
 private:
-    void saveNode(std::ofstream& file, TrieNode* node, const std::string& prefix, std::vector<std::pair<std::string, TrieNode*>>& batch, ThreadPool& pool) const;
-    void writeBatch(std::ofstream& file, const std::vector<std::pair<std::string, TrieNode*>>& batch) const;
+    void saveNode(std::ofstream& file, TrieNode* node, const DSString& prefix, std::vector<std::pair<DSString, TrieNode*>>& batch, ThreadPool& pool) const;
+    void writeBatch(std::ofstream& file, const std::vector<std::pair<DSString, TrieNode*>>& batch) const;
 
     void deleteTrie(TrieNode* node);
 };
