@@ -62,7 +62,6 @@ void Trie::train(const DSString& file) {
         throw std::runtime_error("Could not open file for reading");
     }
 
-    std::cout << "Training the trie..." << std::endl;
     DSString line;
     while (getline(infile, line)) {
         std::istringstream ss(line.c_str());
@@ -86,7 +85,6 @@ void Trie::train(const DSString& file) {
     }
 
     infile.close();
-    std::cout << std::endl << "Training complete!" << std::endl;
 }
 
 void Trie::insert(const DSString& word, bool isPositive) {
@@ -150,7 +148,6 @@ void Trie::save(const DSString& filename) const {
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file for writing");
     }
-    std::cout << "Saving the trie..." << std::endl;
     std::vector<std::pair<DSString, TrieNode*>> batch;
     ThreadPool* pool = new ThreadPool(std::thread::hardware_concurrency());
     saveNode(file, root, "", batch, *pool);
@@ -159,7 +156,6 @@ void Trie::save(const DSString& filename) const {
         writeBatch(file, batch);
     }
     file.close();
-    std::cout << "Trie saved!" << std::endl;
 }
 
 void Trie::saveNode(std::ofstream& file, TrieNode* node, const DSString& prefix, std::vector<std::pair<DSString, TrieNode*>>& batch, ThreadPool& pool) const {
@@ -239,15 +235,17 @@ std::vector<DSString> Trie::tokenize(const DSString& text) const {
     std::istringstream stream(text.c_str());
     DSString word;
     while (stream >> word) {
-        if (word == "not" || word == "no" || word == "nor" || word == "neither") {
-            DSString nextWord;
-            stream >> nextWord;
-            word += " ";
-            word += nextWord;
-        }
         // Remove punctuation and convert to lowercase
         word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
         std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+        if (word == "not" || word == "no" || word == "nor" || word == "neither") {
+            DSString nextWord;
+            stream >> nextWord;
+            nextWord.erase(std::remove_if(nextWord.begin(), nextWord.end(), ::ispunct), nextWord.end());
+            std::transform(nextWord.begin(), nextWord.end(), nextWord.begin(), ::tolower);
+            word += " ";
+            word += nextWord;
+        }
         tokens.push_back(word);
     }
     return tokens;

@@ -67,6 +67,7 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
 double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString& answersFile) const {
     std::ifstream analyzed(analyzedFile.c_str());
     std::ifstream answers(answersFile.c_str());
+    std::ofstream mistakes("mistakes.csv");
 
     if (!analyzed.is_open()) {
         throw std::runtime_error("Could not open analyzed file");
@@ -107,6 +108,9 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
 
         if (analyzedSentiment == answersSentiment) {
             matchingLines++;
+        }
+        else{
+            mistakes << analyzedSentiment << "," << analyzedId << std::endl;
         }
 
         totalLines++;
