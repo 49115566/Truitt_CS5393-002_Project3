@@ -330,6 +330,10 @@ DSString &DSString::operator+=(const char *s) {
     return this->append(s);
 }
 
+DSString &DSString::operator+=(const DSString &s) {
+    return this->append(s);
+}
+
 DSString DSString::substring(size_t start, size_t numChars) const {
     DSString result;
     if (start < len) {
