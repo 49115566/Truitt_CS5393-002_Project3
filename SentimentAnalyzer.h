@@ -19,7 +19,6 @@ public:
 
 private:
     Trie trie;
-    std::vector<DSString> tokenize(const DSString& text) const;
 };
 
 #endif // SENTIMENT_ANALYZER_H

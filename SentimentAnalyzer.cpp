@@ -15,7 +15,7 @@ SentimentAnalyzer::SentimentAnalyzer(const DSString& saveFile, const DSString& t
 }
 
 double SentimentAnalyzer::analyzeSentiment(const DSString& text) const {
-    std::vector<DSString> words = tokenize(text);
+    std::vector<DSString> words = trie.tokenize(text);
     double logOddsSum = 0.0;
     for (const DSString& word : words) {
         logOddsSum += trie.getLogOddsRatio(word);
@@ -120,21 +120,4 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
     }
 
     return (static_cast<double>(matchingLines) / totalLines) * 100.0;
-}
-
-std::vector<DSString> SentimentAnalyzer::tokenize(const DSString& text) const {
-    std::vector<DSString> tokens;
-    std::istringstream stream(text.c_str());
-    DSString word;
-    while (stream >> word) {
-        if (word == "not") {
-            stream >> word;
-            word += "not";
-        }
-        // Remove punctuation and convert to lowercase
-        word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
-        std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-        tokens.push_back(word);
-    }
-    return tokens;
 }

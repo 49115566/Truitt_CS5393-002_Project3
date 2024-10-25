@@ -78,14 +78,9 @@ void Trie::train(const DSString& file) {
         bool isPositive = (sentimentStr == "4");
 
         std::istringstream tweetStream(tweet.c_str());
-        DSString word;
-        while (tweetStream >> word) {
-            if(word == "not") {
-                tweetStream >> word;
-                word += "not";
-            }
-            word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
-            std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+        
+        std::vector<DSString> words = tokenize(tweet);
+        for (const DSString& word : words) {
             insert(word, isPositive);
         }
     }
@@ -237,4 +232,21 @@ void Trie::load(const DSString& filename) {
         current->totalTweets = totalTweets;
         current->positiveSentiments = positiveSentiments;
     }
+}
+
+std::vector<DSString> Trie::tokenize(const DSString& text) const {
+    std::vector<DSString> tokens;
+    std::istringstream stream(text.c_str());
+    DSString word;
+    while (stream >> word) {
+        if (word == "not") {
+            stream >> word;
+            word += "not";
+        }
+        // Remove punctuation and convert to lowercase
+        word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
+        std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+        tokens.push_back(word);
+    }
+    return tokens;
 }

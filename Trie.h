@@ -53,6 +53,8 @@ public:
     
     void save(const DSString& filename) const;
     void load(const DSString& filename);
+    
+    std::vector<DSString> tokenize(const DSString& text) const;
 private:
     void saveNode(std::ofstream& file, TrieNode* node, const DSString& prefix, std::vector<std::pair<DSString, TrieNode*>>& batch, ThreadPool& pool) const;
     void writeBatch(std::ofstream& file, const std::vector<std::pair<DSString, TrieNode*>>& batch) const;
