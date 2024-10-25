@@ -127,6 +127,10 @@ std::vector<DSString> SentimentAnalyzer::tokenize(const DSString& text) const {
     std::istringstream stream(text.c_str());
     DSString word;
     while (stream >> word) {
+        if (word == "not") {
+            stream >> word;
+            word += "not";
+        }
         // Remove punctuation and convert to lowercase
         word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
         std::transform(word.begin(), word.end(), word.begin(), ::tolower);

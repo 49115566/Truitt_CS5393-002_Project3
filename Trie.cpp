@@ -80,6 +80,10 @@ void Trie::train(const DSString& file) {
         std::istringstream tweetStream(tweet.c_str());
         DSString word;
         while (tweetStream >> word) {
+            if(word == "not") {
+                tweetStream >> word;
+                word += "not";
+            }
             word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
             std::transform(word.begin(), word.end(), word.begin(), ::tolower);
             insert(word, isPositive);

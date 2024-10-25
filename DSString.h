@@ -34,6 +34,7 @@ public:
     DSString substring(size_t start, size_t numChars) const;
     DSString toLower() const;
     const char *c_str() const;
+    DSString &operator+=(const char *); // Declaration for word += "not"
 
     // New functions for compatibility with std::string
     DSString(const std::string &); // Constructor from std::string
