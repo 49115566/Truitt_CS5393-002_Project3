@@ -128,8 +128,8 @@ double Trie::getLogOddsRatio(const DSString& word) const {
     if (current->totalTweets == 0) {
         return 0.0;
     }
-    double positiveRatio = static_cast<double>(current->positiveSentiments + 1) / (current->totalTweets + 2); // Laplace smoothing
-    double negativeRatio = static_cast<double>(current->totalTweets - current->positiveSentiments + 1) / (current->totalTweets + 2); // Laplace smoothing
+    double positiveRatio = static_cast<double>(current->positiveSentiments + 1); // Laplace smoothing * (current->totalTweets + 2)
+    double negativeRatio = static_cast<double>(current->totalTweets - current->positiveSentiments + 1); // Laplace smoothing * (current->totalTweets + 2)
     return std::log(positiveRatio / negativeRatio);
 }
 
