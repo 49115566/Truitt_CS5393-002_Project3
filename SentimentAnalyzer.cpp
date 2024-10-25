@@ -14,13 +14,22 @@ SentimentAnalyzer::SentimentAnalyzer(const DSString& saveFile, const DSString& t
     }
 }
 
-double SentimentAnalyzer::analyzeSentiment(const DSString& text) const {
+double SentimentAnalyzer::analyzeSentimentLO(const DSString& text) const {
     std::vector<DSString> words = trie.tokenize(text);
     double logOddsSum = 0.0;
     for (const DSString& word : words) {
         logOddsSum += trie.getLogOddsRatio(word);
     }
     return logOddsSum;
+}
+
+double SentimentAnalyzer::analyzeSentimentSS(const DSString& text) const{
+    std::vector<DSString> words = trie.tokenize(text);
+    double sentimentSum = 0.0;
+    for (const DSString& word : words) {
+        sentimentSum += trie.getSentimentScore(word);
+    }
+    return sentimentSum;
 }
 
 void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& output) const {
@@ -52,10 +61,16 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
         getline(stream, user, ',');
         getline(stream, tweet, ',');
 
-        double sentimentScore = analyzeSentiment(tweet);
-        int sentiment = sentimentScore > 0 ? 4 : 0;
+        double sentimentScore = analyzeSentimentLO(tweet) + 0.2;
+        int sentiment;
+        if(sentimentScore)
+            sentiment = sentimentScore > 0 ? 4 : 0;
+        else{
+            double sentimentScore = analyzeSentimentSS(tweet) + 0.2;
+            sentiment = sentimentScore > 0 ? 4 : (sentimentScore == 0 ? 2 : 0);
+        }
 
-        outputFile << sentiment << "," << id << std::endl;
+        outputFile << sentiment << "," << id << "," << sentimentScore << std::endl;
     }
 
     inputFile.close();
@@ -89,17 +104,17 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
         std::istringstream analyzedStream(analyzedLine.c_str());
         std::istringstream answersStream(answersLine.c_str());
 
-        int analyzedSentiment, answersSentiment;
-        DSString analyzedId, answersId;
+        int analyzedSentiment, answersSentiment, analyzedId, answersId;
+        double confidence;
 
         // Read the CSV fields
         analyzedStream >> analyzedSentiment;
         analyzedStream.ignore(1, ',');
-        getline(analyzedStream, analyzedId);
+        analyzedStream >> analyzedId;
 
         answersStream >> answersSentiment;
         answersStream.ignore(1, ',');
-        getline(answersStream, answersId);
+        answersStream >> answersId;
 
         if (analyzedId != answersId) {
             std::cerr << "ID mismatch at line " << totalLines + 1 << std::endl;
@@ -110,7 +125,9 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
             matchingLines++;
         }
         else{
-            mistakes << analyzedSentiment << "," << analyzedId << std::endl;
+            analyzedStream.ignore(1, ',');
+            analyzedStream >> confidence;
+            mistakes << analyzedSentiment << "," << analyzedId << "," << confidence << std::endl;
         }
 
         totalLines++;
