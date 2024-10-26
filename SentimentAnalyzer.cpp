@@ -72,7 +72,7 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
             sentiment = sentimentScore > 0 ? 4 : (sentimentScore == 0 ? 2 : 0); // Set sentiment based on the sentiment score
         }
 
-        outputFile << sentiment << "," << id << "," << sentimentScore << std::endl; // Write the sentiment, id, and sentiment score to the output file
+        outputFile << sentiment << "," << id << std::endl; // Write the sentiment, id, and sentiment score to the output file
     }
 
     inputFile.close(); // Close the input file
@@ -104,12 +104,12 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
     getline(analyzed, analyzedLine); // Read the header line from the analyzed file
     getline(answers, answersLine); // Read the header line from the answers file
 
+    //Analyze percent accuracy
     while (getline(analyzed, analyzedLine) && getline(answers, answersLine)) { // Read each line from both files
         std::istringstream analyzedStream(analyzedLine.c_str()); // Create a string stream from the analyzed line
         std::istringstream answersStream(answersLine.c_str()); // Create a string stream from the answers line
 
         int analyzedSentiment, answersSentiment, analyzedId, answersId; // Declare integers to hold the CSV fields
-        double confidence; // Declare a double to hold the confidence
 
         // Read the CSV fields
         analyzedStream >> analyzedSentiment; // Read the analyzed sentiment
@@ -127,10 +127,6 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
 
         if (analyzedSentiment == answersSentiment) { // Check if the sentiments match
             matchingLines++; // Increment matching lines count
-        } else { // If the sentiments do not match
-            analyzedStream.ignore(1, ','); // Ignore the comma
-            analyzedStream >> confidence; // Read the confidence
-            mistakes << analyzedSentiment << "," << analyzedId << "," << confidence << std::endl; // Write the mistake to the mistakes file
         }
 
         totalLines++; // Increment total lines count
@@ -139,9 +135,56 @@ double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString&
     analyzed.close(); // Close the analyzed file
     answers.close(); // Close the answers file
 
-    if (totalLines == 0) { // Check if there are no lines
+    if(totalLines != 0){
+        double accuracy = (static_cast<double>(matchingLines) / totalLines); // Calculate the accuracy as a percentage
+        mistakes << std::fixed << std::setprecision(3) << accuracy << std::endl; // Write the accuracy to the mistakes file with 3 significant figures
+    } else{
+        mistakes << std::fixed << std::setprecision(3) << 0.0 << std::endl; // Write 0.0 accuracy to the mistakes file with 3 significant figures
         return 0.0; // Return 0.0 accuracy
     }
 
-    return (static_cast<double>(matchingLines) / totalLines) * 100.0; // Return the accuracy as a percentage
+    analyzed.open(analyzedFile.c_str()); // Open the analyzed file
+    answers.open(answersFile.c_str()); // Open the answers file
+    
+    if (!analyzed.is_open()) { // Check if the analyzed file is open
+        throw std::runtime_error("Could not open analyzed file"); // Throw an error if the analyzed file could not be opened
+    }
+
+    if (!answers.is_open()) { // Check if the answers file is open
+        throw std::runtime_error("Could not open answers file"); // Throw an error if the answers file could not be opened
+    }
+
+    // Skip the header lines
+    getline(analyzed, analyzedLine); // Read the header line from the analyzed file
+    getline(answers, answersLine); // Read the header line from the answers file
+
+    while (getline(analyzed, analyzedLine) && getline(answers, answersLine)) { // Read each line from both files
+        std::istringstream analyzedStream(analyzedLine.c_str()); // Create a string stream from the analyzed line
+        std::istringstream answersStream(answersLine.c_str()); // Create a string stream from the answers line
+
+        int analyzedSentiment, answersSentiment, analyzedId, answersId; // Declare integers to hold the CSV fields
+
+        // Read the CSV fields
+        analyzedStream >> analyzedSentiment; // Read the analyzed sentiment
+        analyzedStream.ignore(1, ','); // Ignore the comma
+        analyzedStream >> analyzedId; // Read the analyzed id
+
+        answersStream >> answersSentiment; // Read the answers sentiment
+        answersStream.ignore(1, ','); // Ignore the comma
+        answersStream >> answersId; // Read the answers id
+
+        if (analyzedId != answersId) { // Check if the ids do not match
+            std::cerr << "ID mismatch at line " << totalLines + 1 << std::endl; // Print id mismatch message
+            break; // Break the loop
+        }
+
+        if (analyzedSentiment != answersSentiment) { // If the sentiments do not match
+            mistakes << analyzedSentiment << "," << answersSentiment << "," << analyzedId << std::endl; // Write the mistake to the mistakes file
+        }
+    }
+
+    analyzed.close(); // Close the analyzed file
+    answers.close(); // Close the answers file
+
+    return (static_cast<double>(matchingLines) / totalLines); // Return the accuracy as a percentage
 }

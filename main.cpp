@@ -10,7 +10,7 @@ int main() { // Main function
         analyzer.analyzeFile("data/test_dataset_10k.csv", "output.csv"); // Analyze the test dataset and output the results to a file
 
         double acc = analyzer.accuracy("output.csv", "data/test_dataset_sentiment_10k.csv"); // Calculate the accuracy of the analysis
-        std::cout << "Accuracy: " << acc << std::endl; // Output the accuracy
+        std::cout << "Accuracy: " << std::fixed << std::setprecision(5) << acc << std::endl; // Output the accuracy
     } catch (const std::exception& e) { // Catch block for standard exceptions
         std::cerr << "Exception: " << e.what() << std::endl; // Output the exception message
         return -1; // Return error code -1
