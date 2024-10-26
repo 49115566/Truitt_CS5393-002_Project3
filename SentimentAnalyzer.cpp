@@ -83,10 +83,10 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
     std::cout << "Analysis complete! Time taken: " << duration.count() << " seconds" << std::endl; // Print analysis complete message with time taken
 }
 
-double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString& answersFile) const { // Calculate accuracy of sentiment analysis
+double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString& answersFile, const DSString& mistakesFile) const { // Calculate accuracy of sentiment analysis
     std::ifstream analyzed(analyzedFile.c_str()); // Open the analyzed file
     std::ifstream answers(answersFile.c_str()); // Open the answers file
-    std::ofstream mistakes("mistakes.csv"); // Open the mistakes file
+    std::ofstream mistakes(mistakesFile.c_str()); // Open the mistakes file
 
     if (!analyzed.is_open()) { // Check if the analyzed file is open
         throw std::runtime_error("Could not open analyzed file"); // Throw an error if the analyzed file could not be opened

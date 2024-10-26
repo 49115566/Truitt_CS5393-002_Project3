@@ -59,9 +59,10 @@ public: // Public members
      * 
      * @param analyzedFile The file containing the analyzed sentiment results.
      * @param answersFile The file containing the correct sentiment answers.
+     * @param mistakesFile The file where the mistakes will be written.
      * @return double The accuracy of the sentiment analysis.
      */
-    double accuracy(const DSString& analyzedFile, const DSString& answersFile) const; // Calculate accuracy
+    double accuracy(const DSString& analyzedFile, const DSString& answersFile, const DSString& mistakesFile) const; // Calculate accuracy
 
 private: // Private members
     Trie trie; // Trie data structure for sentiment analysis
