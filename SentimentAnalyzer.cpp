@@ -45,6 +45,8 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
     }
 
     std::cout << "Analyzing file..." << std::endl; // Print analyzing message
+    auto start = std::chrono::high_resolution_clock::now(); // Start the timer
+
     DSString line; // Declare a string to hold each line
     // Skip the header line
     getline(inputFile, line); // Read the header line
@@ -76,7 +78,9 @@ void SentimentAnalyzer::analyzeFile(const DSString& input, const DSString& outpu
     inputFile.close(); // Close the input file
     outputFile.close(); // Close the output file
 
-    std::cout << "Analysis complete!" << std::endl; // Print analysis complete message
+    auto end = std::chrono::high_resolution_clock::now(); // End the timer
+    std::chrono::duration<double> duration = end - start; // Calculate the duration
+    std::cout << "Analysis complete! Time taken: " << duration.count() << " seconds" << std::endl; // Print analysis complete message with time taken
 }
 
 double SentimentAnalyzer::accuracy(const DSString& analyzedFile, const DSString& answersFile) const { // Calculate accuracy of sentiment analysis

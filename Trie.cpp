@@ -57,6 +57,8 @@ Trie::Trie() { // Constructor for Trie
 }
 
 void Trie::train(const DSString& file) { // Train the Trie with data from a file
+    auto start = std::chrono::high_resolution_clock::now(); // Start timing
+
     std::ifstream infile(file.c_str()); // Open the file for reading
     if (!infile.is_open()) { // Check if the file is open
         throw std::runtime_error("Could not open file for reading"); // Throw an error if the file could not be opened
@@ -85,6 +87,10 @@ void Trie::train(const DSString& file) { // Train the Trie with data from a file
     }
 
     infile.close(); // Close the file
+
+    auto end = std::chrono::high_resolution_clock::now(); // End timing
+    std::chrono::duration<double> duration = end - start; // Calculate the duration
+    std::cout << "Training completed in " << duration.count() << " seconds." << std::endl; // Output the duration
 }
 
 void Trie::insert(const DSString& word, bool isPositive) { // Insert a word into the Trie
@@ -144,6 +150,8 @@ void Trie::deleteTrie(TrieNode* node) { // Delete the Trie recursively
 }
 
 void Trie::save(const DSString& filename) const { // Save the Trie to a file
+    auto start = std::chrono::high_resolution_clock::now(); // Start timing
+
     std::ofstream file(filename.c_str(), std::ios::binary); // Open the file for writing in binary mode
     if (!file.is_open()) { // Check if the file is open
         throw std::runtime_error("Could not open file for writing"); // Throw an error if the file could not be opened
@@ -156,6 +164,10 @@ void Trie::save(const DSString& filename) const { // Save the Trie to a file
         writeBatch(file, batch); // Write the batch to the file
     }
     file.close(); // Close the file
+
+    auto end = std::chrono::high_resolution_clock::now(); // End timing
+    std::chrono::duration<double> duration = end - start; // Calculate the duration
+    std::cout << "Saving completed in " << duration.count() << " seconds." << std::endl; // Output the duration
 }
 
 void Trie::saveNode(std::ofstream& file, TrieNode* node, const DSString& prefix, std::vector<std::pair<DSString, TrieNode*>>& batch, ThreadPool& pool) const { // Save a node to the file
@@ -196,6 +208,8 @@ void Trie::writeBatch(std::ofstream& file, const std::vector<std::pair<DSString,
 }
 
 void Trie::load(const DSString& filename) { // Load the Trie from a file
+    auto start = std::chrono::high_resolution_clock::now(); // Start timing
+
     std::ifstream file(filename.c_str(), std::ios::binary); // Open the file for reading in binary mode
     if (!file.is_open()) { // Check if the file is open
         throw std::runtime_error("Could not open file for reading"); // Throw an error if the file could not be opened
@@ -228,6 +242,12 @@ void Trie::load(const DSString& filename) { // Load the Trie from a file
         current->totalTweets = totalTweets; // Set the totalTweets count
         current->positiveSentiments = positiveSentiments; // Set the positiveSentiments count
     }
+
+    file.close(); // Close the file
+
+    auto end = std::chrono::high_resolution_clock::now(); // End timing
+    std::chrono::duration<double> duration = end - start; // Calculate the duration
+    std::cout << "Loading completed in " << duration.count() << " seconds." << std::endl; // Output the duration
 }
 
 std::vector<DSString> Trie::tokenize(const DSString& text) const { // Tokenize a string into words

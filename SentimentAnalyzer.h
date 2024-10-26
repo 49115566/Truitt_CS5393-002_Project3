@@ -9,6 +9,7 @@
 #include <algorithm> // Include algorithm library
 #include <cctype> // Include character handling functions
 #include <fstream> // Include file stream library
+#include <chrono> // Include the chrono library for measuring time
 
 /**
  * @class SentimentAnalyzer
