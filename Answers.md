@@ -2,13 +2,13 @@
 
 **Complete this document, commit your changes to Github and submit the repository URL to Canvas.** Keep your answers short and precise.
 
-Your Name: Craig Truitt
+Your Name:
 
 Used free extension: [ ] 24 hrs or [ ] 48 hrs
 
-[ ] Early submission (48 hrs)
+[x] Early submission (48 hrs)
 
-[ ] Bonus work. Describe: 72% accuracy
+[x] Bonus work. Describe: 72% accuracy
 
 Place [x] for what applies.
 
@@ -36,7 +36,7 @@ Replace the following image with your diagram. You can draw it by hand and take 
 
 4. What accuracy did your algorithm achieve on the provides training and test data? 
 
-   > My accuracy: 69.44%
+   > My accuracy: xx%
 
    The TA will run your code on Linux and that accuracy value will be used to determine your grade.
 
